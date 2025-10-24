@@ -1,6 +1,6 @@
 # TikTok Livestream Manager CLI
 
-A Bun-based CLI tool to manage and download multiple TikTok livestreams simultaneously with random staggered starts to avoid IP bans. This CLI is built for [Michele0303/tiktok-live-recorder](https://github.com/Michele0303/tiktok-live-recorder).
+A Bun-based CLI tool to manage and download multiple TikTok livestreams simultaneously with random staggered starts. This CLI is built for [Michele0303/tiktok-live-recorder](https://github.com/Michele0303/tiktok-live-recorder).
 
 ## Features
 
