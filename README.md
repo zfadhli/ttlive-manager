@@ -6,11 +6,12 @@ A Bun-based CLI tool to manage and download multiple TikTok livestreams simultan
 
 ✅ Download multiple TikTok livestreams at once  
 ✅ Start/stop any download individually anytime  
-✅ Random delay between 30-45 seconds between downloads to prevent IP bans  
+✅ Delay - no delay for single downloads, random 30-45s delays for batch downloads  
 ✅ Load users from a custom list file  
 ✅ Select specific users or start all at once  
+✅ Customize command prefix and output path  
 ✅ Real-time status monitoring  
-✅ Interactive CLI with `@clack/prompts`  
+✅ Interactive CLI with `@clack/prompts`
 
 ## Setup
 
@@ -116,6 +117,7 @@ Edit the `CONFIG` object in `index.ts`:
 const CONFIG = {
   delayMin: 30000,      // Min delay in ms (30 seconds)
   delayMax: 45000,      // Max delay in ms (45 seconds)
+  commandPrefix: "uv run main.py -no-update-check -mode automatic",
   outputPath: "./",
   userListFile: "users.txt",
 } as const;
