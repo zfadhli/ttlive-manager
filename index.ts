@@ -6,7 +6,7 @@ import { spawn } from "bun";
 const CONFIG = {
 	delayMin: 30000,
 	delayMax: 45000,
-	outputPath: "/mnt/c/users/envs4/downloads/Tiktok/",
+	outputPath: "/mnt/c/users/zfadhli/downloads/",
 	userListFile: "users.txt",
 } as const;
 
