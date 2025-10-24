@@ -30,14 +30,17 @@ class DownloadManager {
 		user: string,
 		commandPrefix: string,
 		outputPath: string,
+		isBatch: boolean = false,
 	): Promise<number> {
 		const id = this.nextId++;
-		const delay =
-			Math.random() * (CONFIG.delayMax - CONFIG.delayMin) + CONFIG.delayMin;
-		const delaySec = Math.round(delay / 1000);
+		if (isBatch) {
+			const delay =
+				Math.random() * (CONFIG.delayMax - CONFIG.delayMin) + CONFIG.delayMin;
+			const delaySec = Math.round(delay / 1000);
 
-		console.log(`⏳ Waiting ${delaySec}s before starting @${user}...`);
-		await new Promise((r) => setTimeout(r, delay));
+			console.log(`⏳ Waiting ${delaySec}s before starting @${user}...`);
+			await new Promise((r) => setTimeout(r, delay));
+		}
 
 		const proc = spawn({
 			cmd: [
@@ -163,7 +166,7 @@ async function promptInitialUsers(
 		if (action === "all") {
 			console.log(`\n🚀 Starting ${users.length} download(s)...\n`);
 			for (const user of users) {
-				await manager.start(user, commandPrefix, outputPath);
+				await manager.start(user, commandPrefix, outputPath, true);
 			}
 			return true;
 		} else if (action === "select") {
@@ -175,8 +178,9 @@ async function promptInitialUsers(
 
 			if (selected && selected.length > 0) {
 				console.log(`\n🚀 Starting ${selected.length} download(s)...\n`);
+				const isBatch = selected.length > 1;
 				for (const user of selected) {
-					await manager.start(user, commandPrefix, outputPath);
+					await manager.start(user, commandPrefix, outputPath, isBatch);
 				}
 				return true;
 			}
@@ -225,7 +229,7 @@ async function mainMenu(
 					message: "Enter username to download:",
 				})) as string;
 				if (user?.trim()) {
-					await manager.start(user.trim(), outputPath, commandPrefix);
+					await manager.start(user.trim(), outputPath, commandPrefix, false);
 				}
 			} else if (startAction === "list") {
 				const selected = (await multiselect({
@@ -233,8 +237,9 @@ async function mainMenu(
 					options: users.map((u) => ({ value: u, label: u })),
 					required: false,
 				})) as string[];
+				const isBatch = selected.length > 1;
 				for (const user of selected || []) {
-					await manager.start(user, commandPrefix, outputPath);
+					await manager.start(user, commandPrefix, outputPath, isBatch);
 				}
 			}
 		}
