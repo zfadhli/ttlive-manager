@@ -38,7 +38,7 @@ uv run main.py -no-update-check -mode automatic -output "/path/to/output" -user 
 Run the CLI:
 
 ```bash
-bun run cli.ts
+bun run index.ts
 ```
 
 ### Interactive Menu
@@ -110,7 +110,7 @@ What would you like to do?
 
 ## Configuration
 
-Edit the `CONFIG` object in `cli.ts`:
+Edit the `CONFIG` object in `index.ts`:
 
 ```typescript
 const CONFIG = {
@@ -124,7 +124,7 @@ const CONFIG = {
 ## Troubleshooting
 
 ### "users.txt not found"
-- Create the file in the same directory as `cli.ts`
+- Create the file in the same directory as `index.ts`
 - Or specify a different filename when prompted
 
 ### "Python script not found"
@@ -143,7 +143,7 @@ const CONFIG = {
 ## Example Workflow
 
 ```bash
-$ bun run cli.ts
+$ bun run index.ts
 
 📋 Found 3 user(s) in users.txt:
 
