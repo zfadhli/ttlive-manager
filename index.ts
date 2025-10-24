@@ -123,7 +123,7 @@ function renderStatus(downloads: Download[]) {
 			error: "❌",
 		};
 
-		console.log(`${icon[status]} [${id}] @${user.padEnd(15)} ${status}`);
+		console.log(`${icon[status]} [${id}] @${user.padEnd(20)} ${status}`);
 	});
 	console.log();
 }
