@@ -7,7 +7,7 @@ const CONFIG = {
 	delayMin: 30000,
 	delayMax: 45000,
 	commandPrefix: "uv run main.py -no-update-check -mode automatic",
-	outputPath: "./",
+	outputPath: "/mnt/c/users/envs4/downloads/Tiktok/",
 	userListFile: "users.txt",
 } as const;
 
@@ -46,7 +46,7 @@ class DownloadManager {
 			cmd: [
 				"bash",
 				"-c",
-				`${commandPrefix} -output "${outputPath}" -user ${user}`,
+				`${commandPrefix} -output "${outputPath}" -user "${user}"`,
 			],
 			stdout: "pipe",
 			stderr: "pipe",
@@ -229,7 +229,7 @@ async function mainMenu(
 					message: "Enter username to download:",
 				})) as string;
 				if (user?.trim()) {
-					await manager.start(user.trim(), outputPath, commandPrefix, false);
+					await manager.start(user.trim(), commandPrefix, outputPath, false);
 				}
 			} else if (startAction === "list") {
 				const selected = (await multiselect({
