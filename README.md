@@ -45,7 +45,7 @@ bun run index.ts
 
 **1. Configure output path:**
 ```
-Output path: /mnt/c/users/zfadhli/downloads/
+Output path: ./
 ```
 
 **2. Select users list file:**
@@ -116,7 +116,7 @@ Edit the `CONFIG` object in `index.ts`:
 const CONFIG = {
   delayMin: 30000,      // Min delay in ms (30 seconds)
   delayMax: 45000,      // Max delay in ms (45 seconds)
-  outputPath: "/mnt/c/users/zfadhli/downloads/",
+  outputPath: "./",
   userListFile: "users.txt",
 } as const;
 ```
