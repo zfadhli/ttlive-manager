@@ -6,6 +6,7 @@ import { spawn } from "bun";
 const CONFIG = {
 	delayMin: 30000,
 	delayMax: 45000,
+	commandPrefix: "uv run main.py -no-update-check -mode automatic",
 	outputPath: "./",
 	userListFile: "users.txt",
 } as const;
@@ -25,7 +26,11 @@ class DownloadManager {
 	private downloads = new Map<number, Download>();
 	private nextId = 1;
 
-	async start(user: string, outputPath: string): Promise<number> {
+	async start(
+		user: string,
+		commandPrefix: string,
+		outputPath: string,
+	): Promise<number> {
 		const id = this.nextId++;
 		const delay =
 			Math.random() * (CONFIG.delayMax - CONFIG.delayMin) + CONFIG.delayMin;
@@ -38,7 +43,7 @@ class DownloadManager {
 			cmd: [
 				"bash",
 				"-c",
-				`uv run main.py -no-update-check -mode automatic -output "${outputPath}" -user ${user}`,
+				`${commandPrefix} -output "${outputPath}" -user ${user}`,
 			],
 			stdout: "pipe",
 			stderr: "pipe",
@@ -136,6 +141,7 @@ function loadUsers(filePath: string): string[] {
 async function promptInitialUsers(
 	manager: DownloadManager,
 	users: string[],
+	commandPrefix: string,
 	outputPath: string,
 	userListFile: string,
 ): Promise<boolean> {
@@ -157,7 +163,7 @@ async function promptInitialUsers(
 		if (action === "all") {
 			console.log(`\n🚀 Starting ${users.length} download(s)...\n`);
 			for (const user of users) {
-				await manager.start(user, outputPath);
+				await manager.start(user, commandPrefix, outputPath);
 			}
 			return true;
 		} else if (action === "select") {
@@ -170,7 +176,7 @@ async function promptInitialUsers(
 			if (selected && selected.length > 0) {
 				console.log(`\n🚀 Starting ${selected.length} download(s)...\n`);
 				for (const user of selected) {
-					await manager.start(user, outputPath);
+					await manager.start(user, commandPrefix, outputPath);
 				}
 				return true;
 			}
@@ -183,8 +189,9 @@ async function promptInitialUsers(
 }
 async function mainMenu(
 	manager: DownloadManager,
-	outputPath: string,
 	users: string[],
+	commandPrefix: string,
+	outputPath: string,
 ): Promise<void> {
 	while (true) {
 		renderStatus(manager.getAll());
@@ -218,7 +225,7 @@ async function mainMenu(
 					message: "Enter username to download:",
 				})) as string;
 				if (user?.trim()) {
-					await manager.start(user.trim(), outputPath);
+					await manager.start(user.trim(), outputPath, commandPrefix);
 				}
 			} else if (startAction === "list") {
 				const selected = (await multiselect({
@@ -227,7 +234,7 @@ async function mainMenu(
 					required: false,
 				})) as string[];
 				for (const user of selected || []) {
-					await manager.start(user, outputPath);
+					await manager.start(user, commandPrefix, outputPath);
 				}
 			}
 		}
@@ -273,7 +280,12 @@ async function mainMenu(
 }
 
 async function main(): Promise<void> {
-	intro("🎬 TikTok Livestream Downloader");
+	intro("🎬 TikTok Livestream Manager");
+
+	const commandPrefix = ((await text({
+		message: "Command prefix:",
+		placeholder: CONFIG.commandPrefix,
+	})) || CONFIG.commandPrefix) as string;
 
 	const outputPath = ((await text({
 		message: "Output path:",
@@ -291,6 +303,7 @@ async function main(): Promise<void> {
 	const shouldContinue = await promptInitialUsers(
 		manager,
 		users,
+		commandPrefix,
 		outputPath,
 		userListFile,
 	);
@@ -299,7 +312,7 @@ async function main(): Promise<void> {
 		return;
 	}
 
-	await mainMenu(manager, outputPath, users);
+	await mainMenu(manager, users, commandPrefix, outputPath);
 }
 
 main().catch(console.error);
