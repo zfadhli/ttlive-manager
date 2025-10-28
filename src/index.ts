@@ -7,20 +7,32 @@ import { loadUsers, start_menu } from "./start_menu";
 async function main(): Promise<void> {
   intro("🎬 TikTok Livestream Manager");
 
-  const commandPrefix = ((await text({
+  const commandPrefix = (await text({
     message: "Command prefix:",
     placeholder: CONFIG.commandPrefix,
-  })) || CONFIG.commandPrefix) as string;
+    defaultValue: CONFIG.commandPrefix,
+    validate: (value) => {
+      return value.trim();
+    },
+  })) as string;
 
-  const outputPath = ((await text({
+  const outputPath = (await text({
     message: "Output path:",
     placeholder: CONFIG.outputPath,
-  })) || CONFIG.outputPath) as string;
+    defaultValue: CONFIG.outputPath,
+    validate: (value) => {
+      return value.trim();
+    },
+  })) as string;
 
-  const userListFile = ((await text({
+  const userListFile = (await text({
     message: "Users list filename:",
     placeholder: CONFIG.userListFile,
-  })) || CONFIG.userListFile) as string;
+    defaultValue: CONFIG.userListFile,
+    validate: (value) => {
+      return value.trim();
+    },
+  })) as string;
 
   const manager = new DownloadManager();
   const users = loadUsers(userListFile);
