@@ -24,7 +24,7 @@ export function renderStatus(downloads: Download[]) {
 }
 
 // Main flow - clear and simple
-export async function start_menu(
+export async function startMenu(
   manager: DownloadManager,
   users: string[],
   commandPrefix: string,

@@ -1,8 +1,8 @@
 import { intro, outro, text } from "@clack/prompts";
 import { CONFIG } from "./config";
-import { main_menu } from "./main_menu";
+import { mainMenu } from "./main_menu";
 import { DownloadManager } from "./manager";
-import { start_menu } from "./start_menu";
+import { startMenu } from "./start_menu";
 import { loadUsers } from "./utils";
 
 async function main(): Promise<void> {
@@ -38,7 +38,7 @@ async function main(): Promise<void> {
   const manager = new DownloadManager();
   const users = loadUsers(userListFile);
 
-  const shouldContinue = await start_menu(
+  const shouldContinue = await startMenu(
     manager,
     users,
     commandPrefix,
