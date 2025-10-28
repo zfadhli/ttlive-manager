@@ -50,7 +50,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  await main_menu(manager, users, commandPrefix, outputPath);
+  await mainMenu(manager, users, commandPrefix, outputPath);
 }
 
 main().catch(console.error);
