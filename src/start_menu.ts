@@ -1,13 +1,13 @@
-import { multiselect, select } from "@clack/prompts";
+import { log, multiselect, select } from "@clack/prompts";
 import type { DownloadManager } from "./manager";
 import type { Download, Status } from "./types";
 
 export function renderStatus(downloads: Download[]) {
   console.clear();
-  console.log("\n📊 Download Status:\n");
+  log.step("📊 Download Status:\n");
 
   if (downloads.length === 0) {
-    console.log("No downloads yet\n");
+    log.message("No downloads yet\n");
     return;
   }
 
@@ -19,9 +19,8 @@ export function renderStatus(downloads: Download[]) {
       error: "❌",
     };
 
-    console.log(`${icon[status]} [${id}] @${user.padEnd(20)} ${status}`);
+    log.message(`${icon[status]} [${id}] @${user.padEnd(20)} ${status}`);
   });
-  console.log();
 }
 
 // Main flow - clear and simple
@@ -34,7 +33,7 @@ export async function start_menu(
 ): Promise<boolean> {
   if (!users.length) return true;
 
-  console.log(`\n📋 Found ${users.length} user(s) in ${userListFile}\n`);
+  log.message(`📋 Found ${users.length} user(s) in ${userListFile}\n`);
 
   while (true) {
     const action = await select({
@@ -48,7 +47,7 @@ export async function start_menu(
     });
 
     if (action === "all") {
-      console.log(`\n🚀 Starting ${users.length} download(s)...\n`);
+      log.message(`🚀 Starting ${users.length} download(s)...\n`);
       for (const user of users) {
         await manager.start(user, commandPrefix, outputPath, true);
       }
@@ -61,7 +60,7 @@ export async function start_menu(
       })) as string[];
 
       if (selected && selected.length > 0) {
-        console.log(`\n🚀 Starting ${selected.length} download(s)...\n`);
+        log.message(`🚀 Starting ${selected.length} download(s)...\n`);
         const isBatch = selected.length > 1;
         for (const user of selected) {
           await manager.start(user, commandPrefix, outputPath, isBatch);
