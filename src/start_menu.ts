@@ -1,4 +1,3 @@
-import { existsSync, readFileSync } from "node:fs";
 import { multiselect, select } from "@clack/prompts";
 import type { DownloadManager } from "./manager";
 import type { Download, Status } from "./types";
@@ -23,18 +22,6 @@ export function renderStatus(downloads: Download[]) {
     console.log(`${icon[status]} [${id}] @${user.padEnd(20)} ${status}`);
   });
   console.log();
-}
-
-export function loadUsers(filePath: string): string[] {
-  if (!existsSync(filePath)) {
-    console.log(`⚠️  ${filePath} not found. Starting with empty list.\n`);
-    return [];
-  }
-
-  return readFileSync(filePath, "utf-8")
-    .split("\n")
-    .map((u) => u.trim())
-    .filter((u) => u && !u.startsWith("#"));
 }
 
 // Main flow - clear and simple

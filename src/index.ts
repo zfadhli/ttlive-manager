@@ -2,7 +2,8 @@ import { intro, outro, text } from "@clack/prompts";
 import { CONFIG } from "./config";
 import { main_menu } from "./main_menu";
 import { DownloadManager } from "./manager";
-import { loadUsers, start_menu } from "./start_menu";
+import { start_menu } from "./start_menu";
+import { loadUsers } from "./utils";
 
 async function main(): Promise<void> {
   intro("🎬 TikTok Livestream Manager");
