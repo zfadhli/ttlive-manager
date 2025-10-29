@@ -10,7 +10,6 @@ export async function mainMenu(
 	getSnapshot: () => Download[],
 	consumePending: () => boolean,
 ): Promise<void> {
-	const { commandPrefix, outputPath } = input;
 	while (true) {
 		// renderStatus(manager.getAll());
 		// manager.notify();
@@ -49,7 +48,7 @@ export async function mainMenu(
 					message: "Enter username to download:",
 				})) as string;
 				if (user?.trim()) {
-					await manager.start(user.trim(), commandPrefix, outputPath);
+					await manager.start(user.trim(), input);
 				}
 			} else if (startAction === "list") {
 				const selected = (await multiselect({
@@ -58,7 +57,7 @@ export async function mainMenu(
 					required: false,
 				})) as string[];
 				for (const user of selected || []) {
-					await manager.start(user, commandPrefix, outputPath);
+					await manager.start(user, input);
 				}
 			}
 		}

@@ -31,9 +31,8 @@ export async function startMenu(
 	input: Input,
 ): Promise<boolean> {
 	if (!users.length) return true;
-	const { commandPrefix, outputPath, userListFile } = input;
 
-	log.message(`📋 Found ${users.length} user(s) in ${userListFile}\n`);
+	log.message(`📋 Found ${users.length} user(s) in ${input.userListFile}\n`);
 
 	while (true) {
 		const action = await select({
@@ -53,7 +52,7 @@ export async function startMenu(
 		if (action === "all") {
 			// log.message(`🚀 Starting ${users.length} download(s)...\n`);
 			for (const user of users) {
-				void manager.start(user, commandPrefix, outputPath);
+				void manager.start(user, input);
 			}
 			renderStatus(manager.getAll());
 			return true;
@@ -67,7 +66,7 @@ export async function startMenu(
 			if (selected && selected.length > 0) {
 				log.message(`🚀 Starting ${selected.length} download(s)...\n`);
 				for (const user of selected) {
-					await manager.start(user, commandPrefix, outputPath);
+					await manager.start(user, input);
 				}
 				return true;
 			}

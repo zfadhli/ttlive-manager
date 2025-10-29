@@ -1,7 +1,7 @@
 import { spawn } from "bun";
 import mitt from "mitt";
 import { CONFIG } from "./config";
-import type { Download, Events } from "./types";
+import type { Download, Events, Input } from "./types";
 import { delay } from "./utils";
 
 export class DownloadManager {
@@ -9,11 +9,7 @@ export class DownloadManager {
 	private nextId = 1;
 	public readonly emitter = mitt<Events>();
 
-	async start(
-		user: string,
-		commandPrefix: string,
-		outputPath: string,
-	): Promise<number> {
+	async start(user: string, input: Input): Promise<number> {
 		const id = this.nextId++;
 
 		const download: Download = {
@@ -33,7 +29,7 @@ export class DownloadManager {
 			cmd: [
 				"bash",
 				"-c",
-				`${commandPrefix} -output "${outputPath}" -user "${user}"`,
+				`${input.commandPrefix} -output "${input.outputPath}" -user "${user}"`,
 			],
 			stdout: "pipe",
 			stderr: "pipe",
