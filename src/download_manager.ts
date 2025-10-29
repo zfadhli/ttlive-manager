@@ -70,7 +70,7 @@ export class DownloadManager {
 			})().catch(() => void 0);
 		}
 
-		// console.log(`✓ Started download for @${user} (ID: ${id})`);
+		console.log(`✓ Started download for @${user} (ID: ${id})`);
 		return id;
 	}
 
@@ -101,3 +101,5 @@ export class DownloadManager {
 		this.emitter.emit("downloads", this.getAll());
 	}
 }
+
+export const manager = new DownloadManager();

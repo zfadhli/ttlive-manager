@@ -2,8 +2,8 @@ import { cancel, group, intro, log, outro, text } from "@clack/prompts";
 import { CONFIG } from "./config";
 import { DownloadManager } from "./download_manager";
 import { mainMenu } from "./main_menu";
-import { renderStatus, startMenu } from "./start_menu";
-import type { Download } from "./types";
+import { renderStatus } from "./render_status";
+import { startMenu } from "./start_menu";
 import { loadUsers } from "./utils";
 
 async function main(): Promise<void> {
@@ -38,16 +38,7 @@ async function main(): Promise<void> {
 		},
 	);
 
-	const manager = new DownloadManager();
-	let latestDownloads: Download[] = manager.getAll();
-	let pendingUiUpdate = false;
-
-	manager.emitter.on("downloads", (list: Download[]) => {
-		latestDownloads = list;
-		pendingUiUpdate = true;
-		// renderStatus(list);
-	});
-	renderStatus(latestDownloads);
+	renderStatus();
 
 	const users = await loadUsers(input.userListFile).catch(() => {
 		log.warning(
@@ -56,23 +47,14 @@ async function main(): Promise<void> {
 		return [];
 	});
 
+	const manager = new DownloadManager();
 	const shouldContinue = await startMenu(manager, users, input);
 	if (!shouldContinue) {
 		outro("✨ Goodbye!");
 		return;
 	}
 
-	await mainMenu(
-		manager,
-		users,
-		input,
-		() => latestDownloads,
-		() => {
-			const pending = pendingUiUpdate;
-			pendingUiUpdate = false;
-			return pending;
-		},
-	);
+	await mainMenu(manager, users, input);
 }
 
 main().catch(console.error);

@@ -1,28 +1,7 @@
 import { isCancel, log, multiselect, select } from "@clack/prompts";
 import type { DownloadManager } from "./download_manager";
-import type { Download, Input, Status } from "./types";
-
-export function renderStatus(downloads: Download[]) {
-	console.clear();
-	log.step("📊 Download Status:\n");
-
-	if (downloads.length === 0) {
-		log.message("No downloads yet\n");
-		return;
-	}
-
-	downloads.forEach(({ id, user, status }) => {
-		const icon: Record<Status, string> = {
-			waiting: "⏱️",
-			running: "⏳",
-			completed: "✅",
-			stopped: "⏹️",
-			error: "❌",
-		};
-
-		log.message(`${icon[status]} [${id}] @${user.padEnd(20)} ${status}`);
-	});
-}
+import { renderStatus } from "./render_status";
+import type { Input } from "./types";
 
 // Main flow - clear and simple
 export async function startMenu(
@@ -54,7 +33,7 @@ export async function startMenu(
 			for (const user of users) {
 				void manager.start(user, input);
 			}
-			renderStatus(manager.getAll());
+			renderStatus();
 			return true;
 		} else if (action === "select") {
 			const selected = (await multiselect({

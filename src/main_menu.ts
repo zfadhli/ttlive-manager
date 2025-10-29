@@ -1,23 +1,15 @@
 import { multiselect, outro, select, text } from "@clack/prompts";
 import type { DownloadManager } from "./download_manager";
-import { renderStatus } from "./start_menu";
-import type { Download, Input } from "./types";
+import { renderStatus } from "./render_status";
+import type { Input } from "./types";
 
 export async function mainMenu(
 	manager: DownloadManager,
 	users: string[],
 	input: Input,
-	getSnapshot: () => Download[],
-	consumePending: () => boolean,
 ): Promise<void> {
 	while (true) {
-		// renderStatus(manager.getAll());
-		// manager.notify();
-		if (consumePending()) {
-			renderStatus(getSnapshot());
-		} else {
-			renderStatus(manager.getAll());
-		}
+		renderStatus();
 
 		const action = await select({
 			message: "What would you like to do?",
@@ -95,8 +87,7 @@ export async function mainMenu(
 				if (confirm === "no") continue;
 				manager.stopAll();
 			}
-			renderStatus(manager.getAll());
-			// manager.notify();
+			renderStatus();
 			outro("✨ Goodbye!");
 			break;
 		}
