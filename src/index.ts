@@ -1,4 +1,4 @@
-import { cancel, group, intro, outro, text } from "@clack/prompts";
+import { cancel, group, intro, log, outro, text } from "@clack/prompts";
 import { CONFIG } from "./config";
 import { DownloadManager } from "./download_manager";
 import { mainMenu } from "./main_menu";
@@ -49,7 +49,12 @@ async function main(): Promise<void> {
 	});
 	renderStatus(latestDownloads);
 
-	const users = await loadUsers(input.userListFile);
+	const users = await loadUsers(input.userListFile).catch(() => {
+		log.warning(
+			`⚠️  ${input.userListFile} not found. Starting with empty list.\n`,
+		);
+		return [];
+	});
 
 	const shouldContinue = await startMenu(manager, users, input);
 	if (!shouldContinue) {
