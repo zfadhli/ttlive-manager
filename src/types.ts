@@ -6,3 +6,8 @@ export interface Download {
   status: Status;
   process?: ReturnType<typeof import("bun").spawn>;
 }
+
+export type Events = {
+  downloads: Download[];
+  download: Download;
+};

@@ -2,7 +2,8 @@ import { intro, outro, text } from "@clack/prompts";
 import { CONFIG } from "./config";
 import { DownloadManager } from "./download_manager";
 import { mainMenu } from "./main_menu";
-import { startMenu } from "./start_menu";
+import { renderStatus, startMenu } from "./start_menu";
+import type { Download } from "./types";
 import { loadUsers } from "./utils";
 
 async function main(): Promise<void> {
@@ -36,6 +37,11 @@ async function main(): Promise<void> {
   })) as string;
 
   const manager = new DownloadManager();
+  manager.emitter.on("downloads", (list: Download[]) => {
+    renderStatus(list);
+  });
+  renderStatus(manager.getAll());
+
   const users = loadUsers(userListFile);
 
   const shouldContinue = await startMenu(

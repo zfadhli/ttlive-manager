@@ -1,11 +1,13 @@
 import { spawn } from "bun";
+import mitt from "mitt";
 import { CONFIG } from "./config";
-import type { Download } from "./types";
+import type { Download, Events } from "./types";
 import { delay } from "./utils";
 
 export class DownloadManager {
   private downloads = new Map<number, Download>();
   private nextId = 1;
+  public readonly emitter = mitt<Events>();
 
   async start(
     user: string,
@@ -21,7 +23,10 @@ export class DownloadManager {
       status: "waiting",
       process: undefined,
     };
+
     this.downloads.set(id, download);
+    this.notify();
+    this.emitter.emit("download", download);
 
     await delay(CONFIG.delayMin, CONFIG.delayMax);
 
@@ -39,12 +44,16 @@ export class DownloadManager {
     if (stored) {
       stored.process = proc;
       stored.status = "running";
+      this.notify();
+      this.emitter.emit("download", stored);
     }
 
     proc.exited.then((code) => {
       const dl = this.downloads.get(id);
       if (dl && dl.status === "running") {
         dl.status = code === 0 ? "completed" : "error";
+        this.notify();
+        this.emitter.emit("download", dl);
       }
     });
 
@@ -76,7 +85,8 @@ export class DownloadManager {
 
     dl.process?.kill();
     dl.status = "stopped";
-    console.log(`✓ Stopped download for @${dl.user}`);
+    this.notify();
+    this.emitter.emit("download", dl);
     return true;
   }
 
@@ -90,5 +100,9 @@ export class DownloadManager {
 
   stopAll() {
     this.getRunning().forEach((d) => void this.stop(d.id));
+  }
+
+  notify(): void {
+    this.emitter.emit("downloads", this.getAll());
   }
 }
