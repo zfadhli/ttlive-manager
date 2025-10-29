@@ -49,7 +49,7 @@ export async function mainMenu(
 					message: "Enter username to download:",
 				})) as string;
 				if (user?.trim()) {
-					await manager.start(user.trim(), commandPrefix, outputPath, false);
+					await manager.start(user.trim(), commandPrefix, outputPath);
 				}
 			} else if (startAction === "list") {
 				const selected = (await multiselect({
@@ -57,9 +57,8 @@ export async function mainMenu(
 					options: users.map((u) => ({ value: u, label: u })),
 					required: false,
 				})) as string[];
-				const isBatch = selected.length > 1;
 				for (const user of selected || []) {
-					await manager.start(user, commandPrefix, outputPath, isBatch);
+					await manager.start(user, commandPrefix, outputPath);
 				}
 			}
 		}

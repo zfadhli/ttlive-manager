@@ -53,7 +53,7 @@ export async function startMenu(
 		if (action === "all") {
 			// log.message(`🚀 Starting ${users.length} download(s)...\n`);
 			for (const user of users) {
-				void manager.start(user, commandPrefix, outputPath, true);
+				void manager.start(user, commandPrefix, outputPath);
 			}
 			renderStatus(manager.getAll());
 			return true;
@@ -66,9 +66,8 @@ export async function startMenu(
 
 			if (selected && selected.length > 0) {
 				log.message(`🚀 Starting ${selected.length} download(s)...\n`);
-				const isBatch = selected.length > 1;
 				for (const user of selected) {
-					await manager.start(user, commandPrefix, outputPath, isBatch);
+					await manager.start(user, commandPrefix, outputPath);
 				}
 				return true;
 			}
