@@ -49,7 +49,7 @@ async function main(): Promise<void> {
 	});
 	renderStatus(latestDownloads);
 
-	const users = loadUsers(input.userListFile);
+	const users = await loadUsers(input.userListFile);
 
 	const shouldContinue = await startMenu(manager, users, input);
 	if (!shouldContinue) {
