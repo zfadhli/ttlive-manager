@@ -1,4 +1,4 @@
-import { intro, outro, text } from "@clack/prompts";
+import { intro, isCancel, outro, text } from "@clack/prompts";
 import { CONFIG } from "./config";
 import { DownloadManager } from "./download_manager";
 import { mainMenu } from "./main_menu";
@@ -9,29 +9,35 @@ import { loadUsers } from "./utils";
 async function main(): Promise<void> {
   intro("🎬 TikTok Livestream Manager");
 
-  const commandPrefix = (
-    (await text({
-      message: "Command prefix:",
-      placeholder: CONFIG.commandPrefix,
-      defaultValue: CONFIG.commandPrefix,
-    })) as string
-  ).trim();
+  const commandPrefix = (await text({
+    message: "Command prefix:",
+    placeholder: CONFIG.commandPrefix,
+    defaultValue: CONFIG.commandPrefix,
+  })) as string;
 
-  const outputPath = (
-    (await text({
-      message: "Output path:",
-      placeholder: CONFIG.outputPath,
-      defaultValue: CONFIG.outputPath,
-    })) as string
-  ).trim();
+  if (isCancel(commandPrefix)) {
+    return process.exit(0);
+  }
 
-  const userListFile = (
-    (await text({
-      message: "Users list filename:",
-      placeholder: CONFIG.userListFile,
-      defaultValue: CONFIG.userListFile,
-    })) as string
-  ).trim();
+  const outputPath = (await text({
+    message: "Output path:",
+    placeholder: CONFIG.outputPath,
+    defaultValue: CONFIG.outputPath,
+  })) as string;
+
+  if (isCancel(outputPath)) {
+    return process.exit(0);
+  }
+
+  const userListFile = (await text({
+    message: "Users list filename:",
+    placeholder: CONFIG.userListFile,
+    defaultValue: CONFIG.userListFile,
+  })) as string;
+
+  if (isCancel(userListFile)) {
+    return process.exit(0);
+  }
 
   const manager = new DownloadManager();
   let latestDownloads: Download[] = manager.getAll();

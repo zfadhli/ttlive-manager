@@ -1,4 +1,4 @@
-import { log, multiselect, select } from "@clack/prompts";
+import { isCancel, log, multiselect, select } from "@clack/prompts";
 import type { DownloadManager } from "./download_manager";
 import type { Download, Status } from "./types";
 
@@ -46,6 +46,10 @@ export async function startMenu(
         { value: "exit", label: "❌ Exit" },
       ],
     });
+
+    if (isCancel(action)) {
+      return process.exit(0);
+    }
 
     if (action === "all") {
       // log.message(`🚀 Starting ${users.length} download(s)...\n`);
