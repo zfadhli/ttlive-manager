@@ -37,10 +37,15 @@ async function main(): Promise<void> {
   })) as string;
 
   const manager = new DownloadManager();
+  let latestDownloads: Download[] = manager.getAll();
+  let pendingUiUpdate = false;
+
   manager.emitter.on("downloads", (list: Download[]) => {
-    renderStatus(list);
+    latestDownloads = list;
+    pendingUiUpdate = true;
+    // renderStatus(list);
   });
-  renderStatus(manager.getAll());
+  renderStatus(latestDownloads);
 
   const users = loadUsers(userListFile);
 
@@ -56,7 +61,18 @@ async function main(): Promise<void> {
     return;
   }
 
-  await mainMenu(manager, users, commandPrefix, outputPath);
+  await mainMenu(
+    manager,
+    users,
+    commandPrefix,
+    outputPath,
+    () => latestDownloads,
+    () => {
+      const pending = pendingUiUpdate;
+      pendingUiUpdate = false;
+      return pending;
+    },
+  );
 }
 
 main().catch(console.error);

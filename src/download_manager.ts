@@ -26,7 +26,7 @@ export class DownloadManager {
 
     this.downloads.set(id, download);
     this.notify();
-    this.emitter.emit("download", download);
+    // this.emitter.emit("download", download);
 
     await delay(CONFIG.delayMin, CONFIG.delayMax);
 
@@ -45,7 +45,7 @@ export class DownloadManager {
       stored.process = proc;
       stored.status = "running";
       this.notify();
-      this.emitter.emit("download", stored);
+      // this.emitter.emit("download", stored);
     }
 
     proc.exited.then((code) => {
@@ -53,7 +53,7 @@ export class DownloadManager {
       if (dl && dl.status === "running") {
         dl.status = code === 0 ? "completed" : "error";
         this.notify();
-        this.emitter.emit("download", dl);
+        // this.emitter.emit("download", dl);
       }
     });
 
@@ -75,7 +75,7 @@ export class DownloadManager {
       })().catch(() => void 0);
     }
 
-    console.log(`✓ Started download for @${user} (ID: ${id})`);
+    // console.log(`✓ Started download for @${user} (ID: ${id})`);
     return id;
   }
 
@@ -86,7 +86,7 @@ export class DownloadManager {
     dl.process?.kill();
     dl.status = "stopped";
     this.notify();
-    this.emitter.emit("download", dl);
+    // this.emitter.emit("download", dl);
     return true;
   }
 

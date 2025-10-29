@@ -52,6 +52,7 @@ export async function startMenu(
       for (const user of users) {
         void manager.start(user, commandPrefix, outputPath, true);
       }
+      renderStatus(manager.getAll());
       return true;
     } else if (action === "select") {
       const selected = (await multiselect({
