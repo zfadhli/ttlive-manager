@@ -1,4 +1,4 @@
-export type Status = "running" | "completed" | "stopped" | "error";
+export type Status = "waiting" | "running" | "completed" | "stopped" | "error";
 
 export interface Download {
   id: number;

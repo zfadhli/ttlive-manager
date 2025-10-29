@@ -14,15 +14,16 @@ export class DownloadManager {
     isBatch: boolean = false,
   ): Promise<number> {
     const id = this.nextId++;
-    if (isBatch) {
-      // const delay =
-      //   Math.random() * (CONFIG.delayMax - CONFIG.delayMin) + CONFIG.delayMin;
-      // const delaySec = Math.round(delay / 1000);
 
-      // console.log(`⏳ Waiting ${delaySec}s before starting @${user}...`);
-      // await new Promise((r) => setTimeout(r, delay));
-      await delay(CONFIG.delayMin, CONFIG.delayMax);
-    }
+    const download: Download = {
+      id,
+      user,
+      status: "waiting",
+      process: undefined,
+    };
+    this.downloads.set(id, download);
+
+    await delay(CONFIG.delayMin, CONFIG.delayMax);
 
     const proc = spawn({
       cmd: [
@@ -34,14 +35,11 @@ export class DownloadManager {
       stderr: "pipe",
     });
 
-    const download: Download = {
-      id,
-      user,
-      status: "running",
-      process: proc,
-    };
-
-    this.downloads.set(id, download);
+    const stored = this.downloads.get(id);
+    if (stored) {
+      stored.process = proc;
+      stored.status = "running";
+    }
 
     proc.exited.then((code) => {
       const dl = this.downloads.get(id);
@@ -58,6 +56,14 @@ export class DownloadManager {
           // silent
         }
       })();
+    }
+
+    if (proc.stderr) {
+      (async () => {
+        for await (const _ of proc.stderr) {
+          /* intentionally empty */
+        }
+      })().catch(() => void 0);
     }
 
     console.log(`✓ Started download for @${user} (ID: ${id})`);

@@ -13,6 +13,7 @@ export function renderStatus(downloads: Download[]) {
 
   downloads.forEach(({ id, user, status }) => {
     const icon: Record<Status, string> = {
+      waiting: "⏱️",
       running: "⏳",
       completed: "✅",
       stopped: "⏹️",
@@ -47,9 +48,9 @@ export async function startMenu(
     });
 
     if (action === "all") {
-      log.message(`🚀 Starting ${users.length} download(s)...\n`);
+      // log.message(`🚀 Starting ${users.length} download(s)...\n`);
       for (const user of users) {
-        await manager.start(user, commandPrefix, outputPath, true);
+        void manager.start(user, commandPrefix, outputPath, true);
       }
       return true;
     } else if (action === "select") {
