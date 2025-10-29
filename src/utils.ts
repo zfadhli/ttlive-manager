@@ -1,3 +1,5 @@
+import { log } from "@clack/prompts";
+
 export async function loadUsers(filePath: string): Promise<string[]> {
 	try {
 		const content = await Bun.file(filePath).text();
@@ -8,7 +10,7 @@ export async function loadUsers(filePath: string): Promise<string[]> {
 	} catch {
 		// Bun.file(...).text() throws when the file doesn't exist - match
 		// previous behavior by returning an empty list and logging a warning.
-		console.log(`⚠️  ${filePath} not found. Starting with empty list.\n`);
+		log.warning(`⚠️  ${filePath} not found. Starting with empty list.\n`);
 		return [];
 	}
 }
