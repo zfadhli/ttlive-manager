@@ -9,32 +9,29 @@ import { loadUsers } from "./utils";
 async function main(): Promise<void> {
   intro("🎬 TikTok Livestream Manager");
 
-  const commandPrefix = (await text({
-    message: "Command prefix:",
-    placeholder: CONFIG.commandPrefix,
-    defaultValue: CONFIG.commandPrefix,
-    validate: (value) => {
-      return value.trim();
-    },
-  })) as string;
+  const commandPrefix = (
+    (await text({
+      message: "Command prefix:",
+      placeholder: CONFIG.commandPrefix,
+      defaultValue: CONFIG.commandPrefix,
+    })) as string
+  ).trim();
 
-  const outputPath = (await text({
-    message: "Output path:",
-    placeholder: CONFIG.outputPath,
-    defaultValue: CONFIG.outputPath,
-    validate: (value) => {
-      return value.trim();
-    },
-  })) as string;
+  const outputPath = (
+    (await text({
+      message: "Output path:",
+      placeholder: CONFIG.outputPath,
+      defaultValue: CONFIG.outputPath,
+    })) as string
+  ).trim();
 
-  const userListFile = (await text({
-    message: "Users list filename:",
-    placeholder: CONFIG.userListFile,
-    defaultValue: CONFIG.userListFile,
-    validate: (value) => {
-      return value.trim();
-    },
-  })) as string;
+  const userListFile = (
+    (await text({
+      message: "Users list filename:",
+      placeholder: CONFIG.userListFile,
+      defaultValue: CONFIG.userListFile,
+    })) as string
+  ).trim();
 
   const manager = new DownloadManager();
   let latestDownloads: Download[] = manager.getAll();
