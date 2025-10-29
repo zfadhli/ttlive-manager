@@ -1,7 +1,7 @@
 import { intro, outro, text } from "@clack/prompts";
 import { CONFIG } from "./config";
+import { DownloadManager } from "./download_manager";
 import { mainMenu } from "./main_menu";
-import { DownloadManager } from "./manager";
 import { startMenu } from "./start_menu";
 import { loadUsers } from "./utils";
 

@@ -1,5 +1,5 @@
 import { log, multiselect, select } from "@clack/prompts";
-import type { DownloadManager } from "./manager";
+import type { DownloadManager } from "./download_manager";
 import type { Download, Status } from "./types";
 
 export function renderStatus(downloads: Download[]) {

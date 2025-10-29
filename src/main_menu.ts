@@ -1,5 +1,5 @@
 import { multiselect, outro, select, text } from "@clack/prompts";
-import type { DownloadManager } from "./manager";
+import type { DownloadManager } from "./download_manager";
 import { renderStatus } from "./start_menu";
 
 export async function mainMenu(

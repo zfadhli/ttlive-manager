@@ -1,6 +1,7 @@
 import { spawn } from "bun";
 import { CONFIG } from "./config";
 import type { Download } from "./types";
+import { delay } from "./utils";
 
 export class DownloadManager {
   private downloads = new Map<number, Download>();
@@ -14,12 +15,13 @@ export class DownloadManager {
   ): Promise<number> {
     const id = this.nextId++;
     if (isBatch) {
-      const delay =
-        Math.random() * (CONFIG.delayMax - CONFIG.delayMin) + CONFIG.delayMin;
-      const delaySec = Math.round(delay / 1000);
+      // const delay =
+      //   Math.random() * (CONFIG.delayMax - CONFIG.delayMin) + CONFIG.delayMin;
+      // const delaySec = Math.round(delay / 1000);
 
-      console.log(`⏳ Waiting ${delaySec}s before starting @${user}...`);
-      await new Promise((r) => setTimeout(r, delay));
+      // console.log(`⏳ Waiting ${delaySec}s before starting @${user}...`);
+      // await new Promise((r) => setTimeout(r, delay));
+      await delay(CONFIG.delayMin, CONFIG.delayMax);
     }
 
     const proc = spawn({

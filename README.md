@@ -4,13 +4,13 @@ A Bun-based CLI tool to manage and download multiple TikTok livestreams simultan
 
 ## Features
 
-✅ Download multiple TikTok livestreams at once  
-✅ Start/stop any download individually anytime  
-✅ Delay - no delay for single downloads, random 30-45s delays for batch downloads  
-✅ Load users from a custom list file  
-✅ Select specific users or start all at once  
-✅ Customize command prefix and output path  
-✅ Real-time status monitoring  
+✅ Download multiple TikTok livestreams at once
+✅ Start/stop any download individually anytime
+✅ Delay - no delay for single downloads, random 30-45s delays for batch downloads
+✅ Load users from a custom list file
+✅ Select specific users or start all at once
+✅ Customize command prefix and output path
+✅ Real-time status monitoring
 ✅ Interactive CLI with `@clack/prompts`
 
 ## Setup
