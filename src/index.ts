@@ -40,12 +40,7 @@ async function main(): Promise<void> {
 
 	renderStatus();
 
-	const users = await loadUsers(input.userListFile).catch(() => {
-		log.warning(
-			`⚠️  ${input.userListFile} not found. Starting with empty list.\n`,
-		);
-		return [];
-	});
+	const users = await loadUsers(input.userListFile);
 
 	const manager = new DownloadManager();
 	const shouldContinue = await startMenu(manager, users, input);
