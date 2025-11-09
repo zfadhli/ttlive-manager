@@ -41,7 +41,7 @@ export class Terminal {
 
 		const icons: Record<string, string> = {
 			waiting: "⏳",
-			downloading: "🚀",
+			downloading: "➡️",
 			completed: "✅",
 			stopped: "🛑",
 			error: "❌",
