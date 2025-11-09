@@ -6,7 +6,7 @@
 
 import { log } from "@clack/prompts";
 import type { Download } from "./types.ts";
-import { formatElapsed, padRight } from "./utils.ts";
+import { formatElapsed } from "./utils.ts";
 
 export class Terminal {
 	private lastRender = 0;
@@ -54,8 +54,8 @@ export class Terminal {
 			const line = [
 				icon?.padStart(4),
 				`[${d.id}]`,
-				`@${padRight(d.user, 30)}`,
-				padRight(d.status, 10),
+				`@${d.user.padEnd(40)}`,
+				d.status.padEnd(10),
 				elapsed,
 			].join(" ");
 			console.log(line);
