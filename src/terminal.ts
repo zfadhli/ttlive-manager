@@ -50,7 +50,7 @@ export class Terminal {
 			const line = [
 				`   ${icon}`,
 				`[${d.id}]`,
-				`@${d.user.padEnd(40)}`,
+				`@${d.user.padEnd(30)}`,
 				d.status.padEnd(13),
 				elapsed,
 			].join(" ");
