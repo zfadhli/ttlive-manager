@@ -23,7 +23,10 @@ export class CLI {
 		this.manager = new DownloadManager();
 		this.terminal = new Terminal();
 
-		this.manager.on("statusChange", () => {
+		this.manager.on("statusChange", (e) => {
+			if (e.status === "completed" || e.status === "error") {
+				this.terminal.resetThrottle();
+			}
 			this.terminal.renderStatus(this.manager.getAll());
 		});
 	}
