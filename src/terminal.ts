@@ -10,6 +10,10 @@ export class Terminal {
 		this.isMenuActive = active;
 	}
 
+	resetThrottle(): void {
+		this.lastRender = 0;
+	}
+
 	renderStatus(downloads: Download[]): void {
 		const now = Date.now();
 		if (now - this.lastRender < 250) return;
