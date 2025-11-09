@@ -1,81 +1,63 @@
-// src/manager.ts
 import { spawn } from "bun";
 import EventEmitter from "eventemitter3";
+import { CONFIG } from "./config.ts";
 import { drainStream } from "./streams";
-import type { Download, Status } from "./types.ts";
+import type { Config, Download, Status } from "./types.ts";
 import { rid, sleep } from "./utils.ts";
-
-export interface ManagerConfig {
-	scriptDirectory: string;
-	delayMin: number;
-	delayMax: number;
-}
 
 export class DownloadManager extends EventEmitter {
 	private downloads = new Map<string, Download>();
-	private config: ManagerConfig;
 
-	constructor(config: ManagerConfig) {
-		super();
-		this.config = config;
-	}
-
-	async start(
-		user: string,
-		outputDir: string,
-		opts?: { commandPrefix?: string; isBatch?: boolean },
-	): Promise<string> {
-		const { commandPrefix = "", isBatch = false } = opts ?? {};
+	async start(user: string, config: Config): Promise<string> {
 		const id = rid();
 
-		if (isBatch) {
-			await this.applyBatchDelay(id, user);
-		}
-
-		const proc = this.spawnProcess(user, outputDir, commandPrefix);
-		const download = this.createDownload(id, user, outputDir, proc);
+		const proc = this.spawnProcess(user, config);
+		const download = this.createDownload(id, user, config.outputPath, proc);
 
 		this.downloads.set(id, download);
-		this.setupHandlers(proc, id, user);
-		this.emitStatus(id, user, "running");
+		// biome-ignore lint/style/noNonNullAssertion: This value is guaranteed to be non-null by external logic.
+		const dl = this.downloads.get(id)!;
+		dl.status = "waiting";
+		this.emitStatus(id, dl.user, "waiting");
 
+		await sleep(CONFIG.delay);
+
+		dl.status = "downloading";
+		this.setupHandlers(proc, id, user);
+		this.emitStatus(id, user, "downloading");
 		return id;
 	}
 
-	stop(id: string): boolean {
+	async stop(id: string): Promise<boolean> {
+		console.log(`Stopping download ${id}`);
 		const dl = this.downloads.get(id);
 		if (!dl) return false;
 
-		try {
-			dl.process?.kill();
-		} catch {
-			/* ignore */
-		}
+		await this.killProcess(dl.process);
 
 		dl.status = "stopped";
 		this.emitStatus(id, dl.user, "stopped");
+		await sleep(600);
 		return true;
 	}
 
-	async restart(
-		id: string,
-		opts?: { commandPrefix?: string },
-	): Promise<string | null> {
+	async restart(id: string, config: Config): Promise<string | null> {
 		const dl = this.downloads.get(id);
 		if (!dl) return null;
 
 		await this.killProcess(dl.process);
 
-		const commandPrefix = opts?.commandPrefix ?? "";
-		const proc = this.spawnProcess(dl.user, dl.outputDir, commandPrefix);
+		const proc = this.spawnProcess(dl.user, config);
 
 		dl.process = proc;
-		dl.status = "running";
-		dl.startTime = new Date();
+		dl.status = "waiting";
+		this.emitStatus(id, dl.user, "waiting");
+		await sleep(CONFIG.delay);
 
 		this.setupHandlers(proc, id, dl.user);
-		this.emitStatus(id, dl.user, "running");
-
+		dl.status = "downloading";
+		dl.startTime = new Date();
+		this.emitStatus(id, dl.user, "downloading");
 		return id;
 	}
 
@@ -84,7 +66,7 @@ export class DownloadManager extends EventEmitter {
 	}
 
 	getRunning(): Download[] {
-		return this.getAll().filter((d) => d.status === "running");
+		return this.getAll().filter((d) => d.status === "downloading");
 	}
 
 	stopAll(): void {
@@ -93,25 +75,12 @@ export class DownloadManager extends EventEmitter {
 		});
 	}
 
-	private async applyBatchDelay(id: string, user: string): Promise<void> {
-		const { delayMin, delayMax } = this.config;
-		const delay = Math.random() * (delayMax - delayMin) + delayMin;
-		const delaySec = Math.round(delay / 1000);
-		console.log(`\n[${id}] ⏳ delaying ${delaySec}s before @${user}`);
-		await sleep(delay);
-		console.log(`[${id}] ✅ started download for @${user}`);
-	}
-
-	private spawnProcess(
-		user: string,
-		outputDir: string,
-		commandPrefix: string,
-	): ReturnType<typeof spawn> {
+	private spawnProcess(user: string, config: Config): ReturnType<typeof spawn> {
 		return spawn({
 			cmd: [
 				"bash",
 				"-c",
-				`cd ${this.config.scriptDirectory} && ${commandPrefix} -output "${outputDir}" -user "${user}"`,
+				`${config.commandPrefix} -output "${config.outputPath}" -user "${user}"`,
 			],
 			stdout: "pipe",
 			stderr: "pipe",
@@ -121,16 +90,16 @@ export class DownloadManager extends EventEmitter {
 	private createDownload(
 		id: string,
 		user: string,
-		outputDir: string,
+		outputPath: string,
 		proc: ReturnType<typeof spawn>,
 	): Download {
 		return {
 			id,
 			user,
-			status: "running",
+			status: "downloading",
 			process: proc,
 			startTime: new Date(),
-			outputDir,
+			outputPath,
 		};
 	}
 
@@ -155,7 +124,7 @@ export class DownloadManager extends EventEmitter {
 			.then((code) => {
 				const dl = this.downloads.get(id);
 				if (!dl) return;
-				if (dl.status === "running") {
+				if (dl.status === "downloading") {
 					dl.status = code === 0 ? "completed" : "error";
 					this.emitStatus(id, user, dl.status);
 				}

@@ -1,9 +1,3 @@
-// src/terminal.ts
-/**
- * Terminal UI rendering and cursor control.
- * Isolated for testability and reusability.
- */
-
 import { log } from "@clack/prompts";
 import type { Download } from "./types.ts";
 import { formatElapsed } from "./utils.ts";
@@ -42,7 +36,8 @@ export class Terminal {
 		}
 
 		const icons: Record<string, string> = {
-			running: "⏳",
+			waiting: "⏳",
+			downloading: "🚀",
 			completed: "✅",
 			stopped: "🛑",
 			error: "❌",
@@ -50,12 +45,13 @@ export class Terminal {
 
 		downloads.forEach((d) => {
 			const icon = icons[d.status] ?? icons.error;
-			const elapsed = d.status === "running" ? formatElapsed(d.startTime) : "";
+			const elapsed =
+				d.status === "downloading" ? formatElapsed(d.startTime) : "";
 			const line = [
-				icon?.padStart(4),
+				`   ${icon}`,
 				`[${d.id}]`,
 				`@${d.user.padEnd(40)}`,
-				d.status.padEnd(10),
+				d.status.padEnd(13),
 				elapsed,
 			].join(" ");
 			console.log(line);

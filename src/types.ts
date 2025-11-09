@@ -1,6 +1,11 @@
 import type { spawn } from "bun";
 
-export type Status = "running" | "completed" | "stopped" | "error";
+export type Status =
+	| "waiting"
+	| "downloading"
+	| "completed"
+	| "stopped"
+	| "error";
 
 export interface Download {
 	id: string;
@@ -8,11 +13,17 @@ export interface Download {
 	status: Status;
 	process?: ReturnType<typeof spawn>;
 	startTime: Date;
-	outputDir: string;
+	outputPath: string;
 }
 
 export interface StatusChangeEvent {
 	id: string;
 	user: string;
 	status: Status;
+}
+
+export interface Config {
+	commandPrefix: string;
+	outputPath: string;
+	userListFile: string;
 }

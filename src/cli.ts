@@ -1,9 +1,17 @@
-// src/cli.ts
-import { intro, log, outro } from "@clack/prompts";
+import {
+	cancel,
+	group,
+	intro,
+	log,
+	multiselect,
+	outro,
+	select,
+	text,
+} from "@clack/prompts";
 import { CONFIG } from "./config.ts";
 import { DownloadManager } from "./manager";
-import { inputText, selectAction, selectMultiple } from "./prompts";
 import { Terminal } from "./terminal";
+import type { Config } from "./types.ts";
 import { readFile, sleep } from "./utils.ts";
 
 export class CLI {
@@ -12,11 +20,7 @@ export class CLI {
 	private users: string[] = [];
 
 	constructor() {
-		this.manager = new DownloadManager({
-			scriptDirectory: CONFIG.scriptDirectory,
-			delayMin: CONFIG.delayMin,
-			delayMax: CONFIG.delayMax,
-		});
+		this.manager = new DownloadManager();
 		this.terminal = new Terminal();
 
 		this.manager.on("statusChange", () => {
@@ -45,21 +49,43 @@ export class CLI {
 		outputPath: string;
 		userListFile: string;
 	}> {
+		const input = await group(
+			{
+				commandPrefix: () =>
+					text({
+						message: "Command prefix:",
+						placeholder: CONFIG.commandPrefix,
+						defaultValue: CONFIG.commandPrefix,
+					}),
+				outputPath: () =>
+					text({
+						message: "Output path:",
+						placeholder: CONFIG.outputPath,
+						defaultValue: CONFIG.outputPath,
+					}),
+				userListFile: () =>
+					text({
+						message: "Users list filename:",
+						placeholder: CONFIG.userListFile,
+						defaultValue: CONFIG.userListFile,
+					}),
+			},
+			{
+				onCancel: () => {
+					cancel("Operation cancelled.");
+					process.exit(0);
+				},
+			},
+		);
+
 		return {
-			commandPrefix: await inputText("Command prefix:", CONFIG.commandPrefix),
-			outputPath: await inputText("Output path:", CONFIG.outputPath),
-			userListFile: await inputText(
-				"Users list filename:",
-				CONFIG.userListFile,
-			),
+			commandPrefix: input.commandPrefix,
+			outputPath: input.outputPath,
+			userListFile: input.userListFile,
 		};
 	}
 
-	private async promptInitialUsers(config: {
-		commandPrefix: string;
-		outputPath: string;
-		userListFile: string;
-	}): Promise<boolean> {
+	private async promptInitialUsers(config: Config): Promise<boolean> {
 		if (!this.users.length) return true;
 
 		log.info(
@@ -68,12 +94,15 @@ export class CLI {
 
 		while (true) {
 			this.terminal.setMenuActive(true);
-			const action = await selectAction("What would you like to do?", [
-				{ value: "all", label: "▶️ Start all" },
-				{ value: "select", label: "✓ Select users" },
-				{ value: "skip", label: "⏭️ Skip" },
-				{ value: "exit", label: "❌ Exit" },
-			]);
+			const action = await select({
+				message: "What would you like to do?",
+				options: [
+					{ value: "all", label: "▶️  Start all" },
+					{ value: "select", label: "✓ Select users" },
+					{ value: "skip", label: "⏭️ Skip" },
+					{ value: "exit", label: "❌ Exit" },
+				],
+			});
 			this.terminal.setMenuActive(false);
 
 			if (action === "exit") return false;
@@ -92,21 +121,21 @@ export class CLI {
 		}
 	}
 
-	private async mainMenu(config: {
-		commandPrefix: string;
-		outputPath: string;
-	}): Promise<void> {
+	private async mainMenu(config: Config): Promise<void> {
 		while (true) {
 			this.terminal.renderStatus(this.manager.getAll());
 
 			this.terminal.setMenuActive(true);
-			const action = await selectAction("What would you like to do?", [
-				{ value: "start", label: "➕ Start a new download" },
-				{ value: "stop", label: "⏹️ Stop a download" },
-				{ value: "restart", label: "🔄 Restart a download" },
-				{ value: "refresh", label: "🔁 Refresh" },
-				{ value: "exit", label: "❌ Exit" },
-			]);
+			const action = await select({
+				message: "What would you like to do?",
+				options: [
+					{ value: "start", label: "➕ Start a new download" },
+					{ value: "stop", label: "⏹️ Stop a download" },
+					{ value: "restart", label: "🔄 Restart a download" },
+					{ value: "refresh", label: "🔁 Refresh screen" },
+					{ value: "exit", label: "❌ Exit" },
+				],
+			});
 			this.terminal.setMenuActive(false);
 
 			switch (action) {
@@ -129,24 +158,23 @@ export class CLI {
 		}
 	}
 
-	private async handleStart(config: {
-		commandPrefix: string;
-		outputPath: string;
-	}): Promise<void> {
+	private async handleStart(config: Config): Promise<void> {
 		this.terminal.setMenuActive(true);
-		const mode = await selectAction("Start from...", [
-			{ value: "custom", label: "✏️ Custom username" },
-			{ value: "list", label: "📋 From users list" },
-		]);
+		const mode = await select({
+			message: "How would you like to start?",
+			options: [
+				{ value: "custom", label: "✏️ Enter username" },
+				{ value: "list", label: "📋 Select from users list" },
+			],
+		});
 		this.terminal.setMenuActive(false);
 
 		if (mode === "custom") {
-			const user = await inputText("Username:", "");
+			const user = (await text({
+				message: "Username:",
+			})) as string;
 			if (user) {
-				await this.manager.start(user, config.outputPath, {
-					commandPrefix: config.commandPrefix,
-					isBatch: false,
-				});
+				await this.manager.start(user, config);
 			}
 		} else if (this.users.length) {
 			const selected = await this.selectUsers();
@@ -168,24 +196,24 @@ export class CLI {
 		}
 
 		this.terminal.setMenuActive(true);
-		const selected = (await selectMultiple(
-			"Select to stop:",
-			running.map((d) => `@${d.user}`),
-		)) as string[];
+		const selected = (await multiselect({
+			message: "Select download(s) to stop:",
+			options: running.map((d) => ({
+				value: d.id.toString(),
+				label: `@${d.user}`,
+			})),
+			required: false,
+		})) as string[];
 		this.terminal.setMenuActive(false);
 
-		selected.forEach((label) => {
-			const user = label.slice(1);
-			const download = running.find((d) => d.user === user);
-			if (download) this.manager.stop(download.id);
-		});
+		for (const id of selected) {
+			await this.manager.stop(id);
+		}
 
 		this.terminal.renderStatus(this.manager.getAll());
 	}
 
-	private async handleRestart(config: {
-		commandPrefix: string;
-	}): Promise<void> {
+	private async handleRestart(config: Config): Promise<void> {
 		const all = this.manager.getAll();
 		if (!all.length) {
 			log.message("❌ No downloads to restart\n");
@@ -194,24 +222,19 @@ export class CLI {
 		}
 
 		this.terminal.setMenuActive(true);
-		const selected = (await selectMultiple(
-			"Select to restart:",
-			all.map((d) => `@${d.user} (${d.status})`),
-		)) as string[];
+		const selected = (await multiselect({
+			message: "Select download(s) to restart:",
+			options: all.map((d) => ({
+				value: d.id.toString(),
+				label: `@${d.user}`,
+			})),
+			required: false,
+		})) as string[];
 		this.terminal.setMenuActive(false);
 
-		selected.forEach((label) => {
-			const parts = label.match(/@(\w+)/);
-			if (parts) {
-				const user = parts[1];
-				const download = all.find((d) => d.user === user);
-				if (download) {
-					this.manager.restart(download.id, {
-						commandPrefix: config.commandPrefix,
-					});
-				}
-			}
-		});
+		for (const id of selected) {
+			await this.manager.restart(id, config);
+		}
 
 		this.terminal.renderStatus(this.manager.getAll());
 	}
@@ -221,13 +244,13 @@ export class CLI {
 		if (!running.length) return true;
 
 		this.terminal.setMenuActive(true);
-		const confirm = await selectAction(
-			"Running downloads exist. Exit anyway?",
-			[
+		const confirm = await select({
+			message: "Running downloads exist. Exit anyway?",
+			options: [
 				{ value: "yes", label: "Yes, exit" },
 				{ value: "no", label: "No, go back" },
 			],
-		);
+		});
 		this.terminal.setMenuActive(false);
 
 		if (confirm === "yes") {
@@ -239,20 +262,18 @@ export class CLI {
 
 	private async selectUsers(): Promise<string[]> {
 		this.terminal.setMenuActive(true);
-		const selected = await selectMultiple("Select user(s):", this.users);
+		const selected = (await multiselect({
+			message: "Select users(s):",
+			options: this.users.map((user) => ({ value: user, label: user })),
+			required: false,
+		})) as string[];
 		this.terminal.setMenuActive(false);
 		return selected;
 	}
 
-	private async startUsers(
-		users: string[],
-		config: { commandPrefix: string; outputPath: string },
-	): Promise<void> {
+	private async startUsers(users: string[], config: Config): Promise<void> {
 		for (const user of users) {
-			await this.manager.start(user, config.outputPath, {
-				commandPrefix: config.commandPrefix,
-				isBatch: users.length > 1,
-			});
+			await this.manager.start(user, config);
 		}
 	}
 
