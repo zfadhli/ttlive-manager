@@ -97,8 +97,8 @@ export class CLI {
 			const action = await select({
 				message: "What would you like to do?",
 				options: [
-					{ value: "all", label: "▶️  Start all" },
-					{ value: "select", label: "✓ Select users" },
+					{ value: "all", label: "🚀 Start all" },
+					{ value: "select", label: "🔎 Select users" },
 					{ value: "skip", label: "⏭️ Skip" },
 					{ value: "exit", label: "❌ Exit" },
 				],
