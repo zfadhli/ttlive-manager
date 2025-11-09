@@ -1,15 +1,5 @@
-// src/utils.ts
-/**
- * Small pure utilities used across the project.
- *
- * Keep functions tiny and testable.
- */
-
 import { readFileSync } from "node:fs";
 
-/**
- * Sleep utility - resolves after ms milliseconds.
- */
 export function sleep(ms: number): Promise<void> {
 	return new Promise((r) => setTimeout(r, ms));
 }
