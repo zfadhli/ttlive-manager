@@ -30,3 +30,7 @@ export function formatElapsed(start: Date): string {
 	if (mins > 0) return `${mins}m ${secs}s`;
 	return `${secs}s`;
 }
+
+export function rid(length: number = 6): string {
+	return [...Array(length)].map(() => Math.random().toString(36)[2]).join("");
+}

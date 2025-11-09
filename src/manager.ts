@@ -3,8 +3,7 @@ import { spawn } from "bun";
 import EventEmitter from "eventemitter3";
 import { drainStream } from "./streams";
 import type { Download, Status } from "./types.ts";
-import { uid } from "./uid.ts";
-import { sleep } from "./utils.ts";
+import { rid, sleep } from "./utils.ts";
 
 export interface ManagerConfig {
 	scriptDirectory: string;
@@ -27,7 +26,7 @@ export class DownloadManager extends EventEmitter {
 		opts?: { commandPrefix?: string; isBatch?: boolean },
 	): Promise<string> {
 		const { commandPrefix = "", isBatch = false } = opts ?? {};
-		const id = uid();
+		const id = rid();
 
 		if (isBatch) {
 			await this.applyBatchDelay(id, user);
