@@ -1,15 +1,19 @@
 {
-  "name": "ttlive-manager",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "@clack/prompts": "^0.11.0"
-  }
+    "name": "ttlive-manager",
+    "module": "index.ts",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "dev": "bun src/index.ts"
+    },
+    "dependencies": {
+        "@clack/prompts": "^0.11.0",
+        "eventemitter3": "^5.0.1"
+    },
+    "devDependencies": {
+        "@types/bun": "latest"
+    },
+    "peerDependencies": {
+        "typescript": "^5"
+    }
 }
