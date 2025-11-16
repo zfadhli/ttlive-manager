@@ -165,6 +165,11 @@ export class DownloadManager extends EventEmitter {
 					dl.status = code === 0 ? "completed" : "error";
 					this.emitStatus(id, user, dl.status);
 				}
+
+				// Ensure process is killed after completion
+				this.killProcess(proc).catch(() => {
+					/* ignore */
+				});
 			})
 			.catch((err: unknown) => {
 				const dl = this.downloads.get(id);
@@ -172,6 +177,9 @@ export class DownloadManager extends EventEmitter {
 				dl.status = "error";
 				this.emitStatus(id, user, "error");
 				console.error(`[${id}] process error: ${String(err)}`);
+				this.killProcess(proc).catch(() => {
+					/* ignore */
+				});
 			});
 
 		if (proc.stdout) {
