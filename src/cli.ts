@@ -125,6 +125,8 @@ export class CLI {
 	}
 
 	private async mainMenu(config: Config): Promise<void> {
+		this.manager.startAutoRestart(config);
+
 		while (true) {
 			this.terminal.renderStatus(this.manager.getAll());
 
@@ -155,7 +157,10 @@ export class CLI {
 					this.terminal.renderStatus(this.manager.getAll());
 					break;
 				case "exit":
-					if (await this.confirmExit()) return;
+					if (await this.confirmExit()) {
+						this.manager.stopAutoRestart();
+						return;
+					}
 					break;
 			}
 		}

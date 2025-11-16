@@ -7,6 +7,43 @@ import { rid, sleep } from "./utils.ts";
 
 export class DownloadManager extends EventEmitter {
 	private downloads = new Map<string, Download>();
+	private autoRestartInterval: NodeJS.Timeout | null = null;
+
+	startAutoRestart(config: Config): void {
+		if (this.autoRestartInterval) return;
+
+		this.autoRestartInterval = setInterval(() => {
+			this.checkAndRestartOldDownloads(config);
+		}, 60_000); // Check every minute
+	}
+
+	stopAutoRestart(): void {
+		if (this.autoRestartInterval) {
+			clearInterval(this.autoRestartInterval);
+			this.autoRestartInterval = null;
+		}
+	}
+
+	private async checkAndRestartOldDownloads(config: Config): Promise<void> {
+		const now = Date.now();
+		const maxDuration = 30 * 60_000;
+
+		for (const download of this.downloads.values()) {
+			if (download.status === "downloading") {
+				const elapsed = now - download.startTime.getTime();
+				if (elapsed > maxDuration) {
+					await this.restart(download.id, config);
+
+					// Force status change event to trigger immediate render
+					this.emit("statusChange", {
+						id: download.id,
+						user: download.user,
+						status: "downloading",
+					});
+				}
+			}
+		}
+	}
 
 	async start(user: string, config: Config): Promise<string> {
 		const id = rid();
